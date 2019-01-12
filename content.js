@@ -1,4 +1,14 @@
 ﻿
+//Init UI
+(() => {
+
+
+
+})();
+
+
+
+
 
 //listen the event from background
 
