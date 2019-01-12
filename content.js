@@ -1,12 +1,69 @@
-﻿
-//Init UI
+﻿//t could be others, fine with 1.
+var g_captcha_url = "https://www.ticketing.highspeed.mtr.com.hk/its/captcha.jpg?t=1";
+
 (() => {
 
+    //Init UI
+    let ui = $(`
+        <div class="searchcontent_t">
+            <div class="searchcontent1_t">
+                <ul>
+                    <li>
+                        <span class="required-field">*</span>
+                        轮询间隔<br>
+                        <span style="white-space: nowrap">
+                            <input id="intervalSecond" type="text" value="60" class="ui-autocomplete-input" autocomplete="off">
+                        </span>
+                    </li>
+
+                    <li>
+                        <span class="required-field">*</span>
+                        电话号码<br>
+                        <span style="white-space: nowrap">
+                            <input id="telNum" type="text" value="" class="ui-autocomplete-input" autocomplete="off">
+                        </span>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+
+        <div class="searchbutton_t">
+            <input type="button" class="searchbutton1" border="0" value="开始轮询" id="beginCheck">
+        </div>
+
+    `);
+
+    $('.searchbg_t').append(ui);
+
+    //Handle captcha
 
 
 })();
 
 
+
+let submit = new Promise((resolve, reject) => {
+
+    let frm = $('#query_form');
+    frm.submit((e) => {
+        e.preventDefault();
+
+        $.ajax({
+            type: frm.attr('method'),
+            url: frm.attr('action'),
+            data: frm.serialize(),
+            success: function (data) {
+                resolve(data);
+            },
+            error: function (data) {
+                reject(data);
+            },
+        });
+
+    });
+
+});
 
 
 
@@ -15,14 +72,14 @@
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 
     /* If the received message has the expected format... */
-    if (msg.text && msg.text == "set")) {
+    if (msg.text && msg.text == "set") {
 
         _store = msg.store;
 
         InitConfig(msg.store);
 
         if (msg.text == "login") {
-            
+
 
             //if need auto code
             var bAutoCode = msg.bAutoCode;
@@ -91,7 +148,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
             }
 
         }
-        
+
         sendResponse(msg.text);
     }
 });
