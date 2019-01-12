@@ -1,0 +1,39 @@
+{
+  "manifest_version": 2,
+  "content_security_policy": "script-src 'self' ; object-src 'self' ",
+  "name": "MTRBuyTicket",
+  "version": "1.0",
+  "description": "I want to go home.",
+  "icons": {
+    "32": "apple.32.png",
+    "48": "apple.32.png",
+    "128": "apple.32.png"
+  },
+  "browser_action": {
+    "default_title": "MTRBuyTicket",
+    "default_icon": "apple.32.png"
+  },
+  "background": {
+    "scripts": [ "background.js", "jquery.js" ],
+    "persistent": true
+  },
+  //"options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": [ "https://www.ticketing.highspeed.mtr.com.hk/its/*" ],
+      "js": [ "jquery.js", "content.js" ]
+    }
+  ],
+  "permissions": [
+    "cookies",
+    "tabs",
+    "clipboardRead",
+    "clipboardWrite",
+    "storage",
+    "browsingData",
+    "*://*.ticketing.highspeed.mtr.com.hk/*",
+    "*://*.ruokuai.com/*",
+    "*://api.accessyou.com/*",
+    "*://localhost/*"
+  ]
+}
