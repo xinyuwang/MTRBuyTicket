@@ -33,8 +33,8 @@ let captcha = (callback) => {
     chrome.runtime.sendMessage({
         type: "captcha"
     }, function (res) {
-        if (res && res['type'] && res['type'] === "captcha" && res['data']) {
-            callback(res.data);
+        if (res && res['type'] && res['type'] === "captcha" && res['data'] && res['data']['code']) {
+            callback(res.data.code);
         }
         else {
             err('Received error code from background.js');
@@ -63,18 +63,19 @@ let makemsg = (data) => {
 
     });
 
-    return `${trainNum} Train found. ${arrMsg.join(" | ")};`
+    return `${trainNum} Train found. ${arrMsg.join(" | ")};`;
 
-}
+};
 
-let sendsms = (msg, callback) => {
+//do send sms
+let sendsms = (msg, tel, callback) => {
 
     chrome.runtime.sendMessage({
         type: "sms",
-        data: msg
+        data: { msg, tel },
     }, function (res) {
-        if (res && res['type'] && res['type'] === "sms") {
-            callback(res.data);
+        if (res && res['type'] && res['type'] === "sms" && res['data'] && res['data']['success']) {
+            callback(res.data.success);
         }
         else {
             err('sms send error from background.js');
@@ -128,8 +129,8 @@ let sendsms = (msg, callback) => {
     let interval_function = () => {
 
         //Handle captcha
-        captcha(data => {
-            $('#captcha').val(data);
+        captcha(code => {
+            $('#captcha').val(code);
 
             //submit
             submit(res => {

@@ -5,6 +5,8 @@ var g_captchaUrl = "https://www.ticketing.highspeed.mtr.com.hk/its/captcha.jpg?t
 
 //yunpian.com
 var g_smsUrl = "https://sms.yunpian.com/v2/sms/single_send.json";
+var g_smsKey = "837ebc2af3ab2db22cfd6b8c821c2d6f";
+
 
 //Ruokuai account information
 var g_codeUser = "wmw1989";
@@ -22,14 +24,18 @@ let err = (msg) => {
 
 };
 
-let sendsms = (msg, callback) => {
+let sendsms = (msg, tel, callback) => {
 
     $.ajax({
         type: 'POST',
         accepts: 'application/json;charset=utf-8;',
         contentType: 'application/x-www-form-urlencoded;charset=utf-8;',
         url: g_smsUrl,
-
+        data: {
+            apikey: g_smsKey,
+            text: `	【YYYHHJCH】您好，系统提醒您当前触发的事件为"车票刷新"，详情为"${msg}"，请您及时上线处理！`,
+            mobile: tel
+        },
         success: function (data) {
             callback(data);
         },
@@ -39,7 +45,7 @@ let sendsms = (msg, callback) => {
         }
     });
 
-}
+};
 
 let captcha = (callback) => {
 
@@ -95,13 +101,13 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     /* If the received message has the expected format... */
     if (msg['type'] === "captcha") {
 
-        captcha(data => {
+        captcha(code => {
 
-            if (typeof data === 'string' && data.length === 4) {
+            if (typeof code === 'string' && code.length === 4) {
 
                 sendResponse({
                     type: 'captcha',
-                    data: data
+                    data: { code }
                 });
 
             }
@@ -118,14 +124,15 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 
     } else if (msg['type'] === "sms") {
 
-        sendsms(msg['data'], data => {
+        //assert data = {msg, tel}
+        sendsms(msg.data.msg, msg.data.tel, res => {
 
-            if (data['code'] === 0) {
+            if (res['code'] === 0) {
                 //send success
 
                 sendResponse({
                     type: 'sms',
-                    data: true
+                    data: { success: true }
                 });
 
             }
@@ -138,7 +145,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 
             }
 
-        })
+        });
 
     }
 
