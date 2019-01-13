@@ -10,23 +10,19 @@ let err = (msg) => {
 let submit = (callback) => {
 
     let frm = $('#query_form');
-    frm.submit((e) => {
-        e.preventDefault();
 
-        $.ajax({
-            type: frm.attr('method'),
-            url: frm.attr('action'),
-            data: frm.serialize(),
+    $.ajax({
+        type: frm.attr('method'),
+        url: frm.attr('action'),
+        data: frm.serialize(),
 
-            success: function (data) {
-                callback(data);
-            },
+        success: function (data) {
+            callback(data);
+        },
 
-            error: function (data) {
-                err('Submit MTR form error');
-            }
-        });
-
+        error: function (data) {
+            err('Submit MTR form error');
+        }
     });
 
 };
@@ -46,6 +42,30 @@ let captcha = (callback) => {
     });
 
 };
+
+//make message
+let makemsg = (data) => {
+
+    let trainNum = data.length;
+
+    let arrMsg = [];
+
+    data.forEach((val, idx, arr) => {
+        let arrPrice = [];
+        val.seatTypes.forEach(v => {
+            if (v.availFlag === true) {
+                arrPrice.push(v.price);
+            }
+        });
+
+        let msg = `No. ${idx}, ${val.stationTrainCode}(${val.arriveTime}-${val.departTime}), Price. (${arrPrice.join('/')})`;
+        arrMsg.push(msg);
+
+    });
+
+    return arrMsg.join(" | ");
+
+}
 
 (() => {
 
@@ -89,11 +109,32 @@ let captcha = (callback) => {
     let intervalNum = $('#intervalNum').val() - 0;
     let telNum = $('#telNum').val();
 
+    let interval_function = () => {
+
+        //Handle captcha
+        captcha(data => {
+            $('#captcha').val(data);
+
+            //submit
+            submit(res => {
+                console.log(res);
+
+                if (res['success'] === true) {
+                    //has tickets
+                    console.log(makemsg(res.data));
+
+                }
+
+            });
+        });
+
+    };
+
     //setInterval
 
-    //Handle captcha
-    captcha(data => {
-        $('#captcha').val(data);
+
+    $('#startBtn').click(() => {
+        interval_function();
     });
 
 
