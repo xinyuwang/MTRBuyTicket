@@ -74,7 +74,7 @@ let sendsms = (msg, tel, callback) => {
         type: "sms",
         data: { msg, tel }
     }, function (res) {
-        if (res && res['type'] && res['type'] === "sms" && res['data'] && res['data']['success']) {
+        if (res && res['type'] && res['type'] === "sms" && res['data'] && res['data']['success'] === true) {
             callback(res.data.success);
         }
         else {
@@ -93,15 +93,15 @@ let sendsms = (msg, tel, callback) => {
                 <ul>
                     <li>
                         <span class="required-field">*</span>
-                        轮询间隔<br>
+                        轮询间隔(分钟)<br>
                         <span style="white-space: nowrap">
-                            <input id="intervalNum" type="text" value="60" class="ui-autocomplete-input" autocomplete="off">
+                            <input id="intervalNum" type="text" value="5" class="ui-autocomplete-input" autocomplete="off">
                         </span>
                     </li>
 
                     <li>
                         <span class="required-field">*</span>
-                        电话号码<br>
+                        电话号码(中国内地)<br>
                         <span style="white-space: nowrap">
                             <input id="telNum" type="text" value="" class="ui-autocomplete-input" autocomplete="off">
                         </span>
@@ -121,13 +121,15 @@ let sendsms = (msg, tel, callback) => {
     $('.searchbg_t').append(ui);
 
 
-    //main
 
-    
-    
+    //main interval function
     let interval_function = () => {
 
         let telNum = $('#telNum').val();
+        if (/^1[34578]\d{9}$/.test(telNum) === false) {
+            alert("手机号码有误，请重填");
+            return;
+        }
 
         //Handle captcha
         captcha(code => {
@@ -142,11 +144,10 @@ let sendsms = (msg, tel, callback) => {
                     console.log(makemsg(res.data));
                     sendsms(makemsg(res.data), telNum, (smsRes) => {
 
-                        if (smsRes && smsRes['type'] && smsRes['type'] === "sms" && res['data'] && res['data']['success'] === true) {
-                            console.log('Successful send message.');
-                        }
-                        else {
-                            err('Send SMS error from background.js');
+                        if (smsRes) {
+                            console.log('Successful send message, close timer.');
+                            clearInterval(interval_timer);
+                            interval_timer = null;
                         }
                     });
 
@@ -159,14 +160,32 @@ let sendsms = (msg, tel, callback) => {
 
     //setInterval
 
+    let interval_timer = null;
 
     $('#startBtn').click(() => {
 
         let intervalNum = $('#intervalNum').val() - 0;
 
-        interval_function();
+        if (intervalNum < 5) {
+            alert('因成本问题，轮训时间在5分钟以上。');
+        }
+
+        if (!interval_timer) {
+            interval_timer = setInterval(interval_function, intervalNum * 1000 * 60);
+            alert('监控已开始');
+        }
+
     });
 
+    $('#stopBtn').click(() => {
+
+        if (interval_timer) {
+            clearInterval(interval_timer);
+            interval_timer = null;
+            alert('监控已停止');
+        }
+
+    });
 
 })();
 
