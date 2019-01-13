@@ -28,14 +28,10 @@ let sendsms = (msg, callback) => {
         type: 'POST',
         accepts: 'application/json;charset=utf-8;',
         contentType: 'application/x-www-form-urlencoded;charset=utf-8;',
-        url: g_apiUrl,
-        timeout: 600000,
-        data: fd,
-        processData: false,
-        contentType: false,
+        url: g_smsUrl,
 
         success: function (data) {
-            callback(data["Result"]);
+            callback(data);
         },
 
         error: function (data) {
@@ -99,7 +95,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     /* If the received message has the expected format... */
     if (msg['type'] === "captcha") {
 
-        captcha((data) => {
+        captcha(data => {
 
             if (typeof data === 'string' && data.length === 4) {
 
@@ -122,7 +118,27 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 
     } else if (msg['type'] === "sms") {
 
+        sendsms(msg['data'], data => {
 
+            if (data['code'] === 0) {
+                //send success
+
+                sendResponse({
+                    type: 'sms',
+                    data: true
+                });
+
+            }
+            else {
+
+                sendResponse({
+                    type: 'error',
+                    data: 'error send SMS'
+                });
+
+            }
+
+        })
 
     }
 
