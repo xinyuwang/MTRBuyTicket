@@ -120,16 +120,10 @@ let sendsms = (msg, tel, callback) => {
 
     $('.searchbg_t').append(ui);
 
-
-
     //main interval function
     let interval_function = () => {
 
         let telNum = $('#telNum').val();
-        if (/^1[34578]\d{9}$/.test(telNum) === false) {
-            alert("手机号码有误，请重填");
-            return;
-        }
 
         //Handle captcha
         captcha(code => {
@@ -165,13 +159,25 @@ let sendsms = (msg, tel, callback) => {
     $('#startBtn').click(() => {
 
         let intervalNum = $('#intervalNum').val() - 0;
-
         if (intervalNum < 5) {
             alert('因成本问题，轮训时间在5分钟以上。');
+            return;
+        }
+
+        let telNum = $('#telNum').val();
+        if (/^1[34578]\d{9}$/.test(telNum) === false) {
+            alert("手机号码有误，请重填");
+            return;
         }
 
         if (!interval_timer) {
             interval_timer = setInterval(interval_function, intervalNum * 1000 * 60);
+            
+            $('#intervalNum').prop('readonly', false);
+            $('#telNum').prop('readonly', false);
+            $('#startBtn').prop('disabled', true);
+            $('#stopBtn').prop('disabled', false);
+
             alert('监控已开始');
         }
 
@@ -182,10 +188,19 @@ let sendsms = (msg, tel, callback) => {
         if (interval_timer) {
             clearInterval(interval_timer);
             interval_timer = null;
+
+            $('#intervalNum').prop('readonly', true);
+            $('#telNum').prop('readonly', true);
+            $('#startBtn').prop('disabled', false);
+            $('#stopBtn').prop('disabled', true);
+
             alert('监控已停止');
         }
 
     });
+
+    //default lock stop button
+    $('#stopBtn').prop('disabled', true);
 
 })();
 
