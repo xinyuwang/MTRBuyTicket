@@ -28,13 +28,14 @@ let sendsms = (msg, tel, callback) => {
 
     $.ajax({
         type: 'POST',
-        accepts: 'application/json;charset=utf-8;',
+        accepts: { json: 'application/json;charset=utf-8;' },
         contentType: 'application/x-www-form-urlencoded;charset=utf-8;',
         url: g_smsUrl,
         data: {
             apikey: g_smsKey,
-            text: `	【YYYHHJCH】您好，系统提醒您当前触发的事件为"车票刷新"，详情为"${msg}"，请您及时上线处理！`,
-            mobile: tel
+            mobile: tel,
+            //sms limit the length, so will not use the msg
+            text: `	【YYYHHJCH】您好，系统提醒您当前触发的事件为"车票刷新"，详情为"登录查看"，请您及时上线处理！`
         },
         success: function (data) {
             callback(data);
@@ -126,6 +127,8 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 
         //assert data = {msg, tel}
         sendsms(msg.data.msg, msg.data.tel, res => {
+
+            console.log(res);
 
             if (res['code'] === 0) {
                 //send success

@@ -72,7 +72,7 @@ let sendsms = (msg, tel, callback) => {
 
     chrome.runtime.sendMessage({
         type: "sms",
-        data: { msg, tel },
+        data: { msg, tel }
     }, function (res) {
         if (res && res['type'] && res['type'] === "sms" && res['data'] && res['data']['success']) {
             callback(res.data.success);
@@ -123,10 +123,11 @@ let sendsms = (msg, tel, callback) => {
 
     //main
 
-    let intervalNum = $('#intervalNum').val() - 0;
-    let telNum = $('#telNum').val();
-
+    
+    
     let interval_function = () => {
+
+        let telNum = $('#telNum').val();
 
         //Handle captcha
         captcha(code => {
@@ -139,6 +140,15 @@ let sendsms = (msg, tel, callback) => {
                 if (res['success'] === true) {
                     //has tickets
                     console.log(makemsg(res.data));
+                    sendsms(makemsg(res.data), telNum, (smsRes) => {
+
+                        if (smsRes && smsRes['type'] && smsRes['type'] === "sms" && res['data'] && res['data']['success'] === true) {
+                            console.log('Successful send message.');
+                        }
+                        else {
+                            err('Send SMS error from background.js');
+                        }
+                    });
 
                 }
 
@@ -151,6 +161,9 @@ let sendsms = (msg, tel, callback) => {
 
 
     $('#startBtn').click(() => {
+
+        let intervalNum = $('#intervalNum').val() - 0;
+
         interval_function();
     });
 

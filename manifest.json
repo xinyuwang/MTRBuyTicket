@@ -34,6 +34,7 @@
     "*://*.ticketing.highspeed.mtr.com.hk/*",
     "*://*.ruokuai.com/*",
     "*://api.accessyou.com/*",
-    "*://localhost/*"
+    "*://localhost/*",
+    "*://sms.yunpian.com/*"
   ]
 }
