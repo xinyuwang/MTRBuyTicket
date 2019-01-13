@@ -33,7 +33,7 @@ let captcha = (callback) => {
     chrome.runtime.sendMessage({
         type: "captcha"
     }, function (res) {
-        if (res && res['type'] && res['type'] === "code" && res['data']) {
+        if (res && res['type'] && res['type'] === "captcha" && res['data']) {
             callback(res.data);
         }
         else {
@@ -63,7 +63,23 @@ let makemsg = (data) => {
 
     });
 
-    return arrMsg.join(" | ");
+    return `${trainNum} Train found. ${arrMsg.join(" | ")};`
+
+}
+
+let sendsms = (msg, callback) => {
+
+    chrome.runtime.sendMessage({
+        type: "sms",
+        data: msg
+    }, function (res) {
+        if (res && res['type'] && res['type'] === "sms") {
+            callback(res.data);
+        }
+        else {
+            err('sms send error from background.js');
+        }
+    });
 
 }
 
@@ -140,15 +156,3 @@ let makemsg = (data) => {
 
 })();
 
-
-//listen the event from background
-
-chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-
-    /* If the received message has the expected format... */
-    if (msg.text && msg.type === "code") {
-
-        //
-
-    }
-});

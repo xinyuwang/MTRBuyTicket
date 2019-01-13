@@ -1,7 +1,10 @@
-﻿var g_ticket_url = "https://www.ticketing.highspeed.mtr.com.hk/its/?lang=zh_HK";
+﻿var g_ticketUrl = "https://www.ticketing.highspeed.mtr.com.hk/its/?lang=zh_HK";
 
 //t could be others, fine with 1.
 var g_captchaUrl = "https://www.ticketing.highspeed.mtr.com.hk/its/captcha.jpg?t=1";
+
+//yunpian.com
+var g_smsUrl = "https://sms.yunpian.com/v2/sms/single_send.json";
 
 //Ruokuai account information
 var g_codeUser = "wmw1989";
@@ -19,6 +22,28 @@ let err = (msg) => {
 
 };
 
+let sendsms = (msg, callback) => {
+
+    $.ajax({
+        type: 'POST',
+        accepts: 'application/json;charset=utf-8;',
+        contentType: 'application/x-www-form-urlencoded;charset=utf-8;',
+        url: g_apiUrl,
+        timeout: 600000,
+        data: fd,
+        processData: false,
+        contentType: false,
+
+        success: function (data) {
+            callback(data["Result"]);
+        },
+
+        error: function (data) {
+            err('Post Ruokuai Error');
+        }
+    });
+
+}
 
 let captcha = (callback) => {
 
@@ -65,7 +90,7 @@ let captcha = (callback) => {
 //click the browserAction to redirect the URL
 chrome.browserAction.onClicked.addListener(function (tab) {
 
-    chrome.tabs.update(null, { url: g_ticket_url });
+    chrome.tabs.update(null, { url: g_ticketUrl });
 
 });
 
@@ -79,7 +104,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
             if (typeof data === 'string' && data.length === 4) {
 
                 sendResponse({
-                    type: 'code',
+                    type: 'captcha',
                     data: data
                 });
 
@@ -94,6 +119,10 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
             }
 
         });
+
+    } else if (msg['type'] === "sms") {
+
+
 
     }
 
